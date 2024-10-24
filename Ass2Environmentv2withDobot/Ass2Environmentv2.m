@@ -4,15 +4,12 @@ function[] = Ass2Environment()
     clc
 
     % Creating Robots
-    % Linear UR3e Model
+    % Linear C5 Model
     r = dobot;
-    % Move the robot's base to a new position and height
     % For example, to move it to [x, y, z] = [1, 0, 0.5], create a transformation matrix
     newBaseTransform = transl(1.2, 1, 1); % transl(x, y, z) for position [x, y, z]
     r.model.base = newBaseTransform; % Assign the new base transformation
-
     assignin('base', 'r', r);
-%%    robot = UR3();
     q = [pi/6, -pi/2, pi/3, 0, -pi/4, pi/2];
 r.model.animate(q);
 
