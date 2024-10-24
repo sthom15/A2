@@ -40,6 +40,9 @@ classdef dobot < RobotBaseClass
             link(5) = Link('d',0.08535,'a',0,'alpha',-pi/2,'qlim',deg2rad([-360,360]), 'offset',0);
             link(6) = Link('d',0.0819,'a',0,'alpha',0,'qlim',deg2rad([-360,360]), 'offset', 0);
              
+            link(7) = Link('d', 0.02, 'a', 0.01, 'alpha', pi/2, 'qlim', deg2rad([0 90]), 'offset', 0); % Right finger joint
+% Left finger link
+link(8) = Link('d', 0, 'a', -0.02, 'alpha', 0, 'qlim', deg2rad([0 90]), 'offset', 0); % Left finger joint
             self.model = SerialLink(link,'name',self.name);
         end      
     end
