@@ -46,11 +46,18 @@ function Ass2Environmentv2
 
     % Position environment objects on the table
     PlaceObject('shaker.ply', [1.1, 1.2, 1.0]);
-    PlaceObject('emergencyStopButton.ply', [-0.8, 1.3, 1.0]);  % E-stop button moved 1 step behind
-    PlaceObject('vodkabottle.ply', [2.05, 1.9, 1.0]);          % Vodka bottle moved 1 forward and right
-    PlaceObject('rumbottle.ply', [2.15, 1.9, 1.0]);            % Rum bottle
-    PlaceObject('greenbottle.ply', [2.25, 1.9, 1.0]);          % Green bottle
+    PlaceObject('emergencyStopButton.ply', [-0.8, 1.3, 0.8]);  % E-stop button moved 1 step behind
+    PlaceObject('vodkabottle.ply', [1.35, 1.9, 1.0]);          % Vodka bottle moved 1 forward and right
+    PlaceObject('rumbottle.ply', [1.5, 1.9, 1.0]);            % Rum bottle
+    PlaceObject('greenbottle.ply', [1.65, 1.9, 1.0]);          % Green bottle
     PlaceObject('RedSoloCup.ply', [1.35, 0.5, 1.0]);           % Red Solo Cup
+
+    PlaceObject('vodkabottle.ply', [1, -1.35, 1.0]);          
+    PlaceObject('rumbottle.ply', [1, -1.55, 1.0]);
+
+    PlaceObject('vodkabottle.ply', [-0.25, 1, 0.8]);          
+    PlaceObject('rumbottle.ply', [-0.25, 0.8, 0.8]);            
+    PlaceObject('greenbottle.ply', [-0.25, 0.6, 0.8]);
 
     %% Dobot Movements
     disp('Starting Dobot movements...');
