@@ -6,7 +6,7 @@ function Ass2Environmentv2
 
     % Set up the environment
     figureHandle = figure;
-    axis([-3, 8, -3, 3, 0, 2]);
+    axis([-3, 3, -3, 3, 0, 2]);
     hold on;
 
     % Set up the key press callback for the emergency stop (when "0" is pressed)
@@ -17,8 +17,26 @@ function Ass2Environmentv2
         'CData', imread('floor.jpg'), 'FaceColor', 'texturemap');
 
     % Place the main table
-    PlaceObject('table2.ply', [-0.5, 1, 0]);
-    PlaceObject('counter2.ply', [1.2, -1, 0]);
+    PlaceObject('table2.ply', [-0.5, 1, 0]);  % Position the main table
+    PlaceObject('counter2.ply', [1, -1, 0]);  % Side counter
+    PlaceObject('stool3.ply',[-1,-2,0]);      % Stools
+    PlaceObject('stool3.ply',[0,-2,0]);
+    PlaceObject('stool3.ply',[1,-2,0]);
+    PlaceObject('stool3.ply',[2,-1,0]);
+    PlaceObject('stool3.ply',[2,0,0]);
+    PlaceObject('stool3.ply',[2,1,0]);
+    PlaceObject('stool3.ply',[2,2,0]);
+    PlaceObject('personMaleCasual.ply',[-1.5,1.5,0]);  % Person to scale
+
+    % Place Safety Fencing around Robot Zone
+    f1 = PlaceObject('fence.ply',[-1,-0.6,0]);
+    verts = [get(f1,'Vertices'), ones(size(get(f1,'Vertices'),1),1)];   
+    verts(:,3) = verts(:,3) * 2; % Scale the z-coordinates to make the object taller
+    set(f1,'Vertices',verts(:,1:3));
+    f2 = PlaceObject('fence.ply',[-1,2.5,0]);
+    verts = [get(f2,'Vertices'), ones(size(get(f2,'Vertices'),1),1)];
+    verts(:,3) = verts(:,3) * 2;
+    set(f2,'Vertices',verts(:,1:3));
 
     % Position the Dobot on the table
     r_dobot = dobot;
@@ -28,7 +46,7 @@ function Ass2Environmentv2
 
     % Position environment objects on the table
     PlaceObject('shaker.ply', [1.1, 1.2, 1.0]);
-    PlaceObject('emergencyStopButton.ply', [2.0, -1.2, 1.0]);  % E-stop button moved 1 step behind
+    PlaceObject('emergencyStopButton.ply', [-0.8, 1.3, 1.0]);  % E-stop button moved 1 step behind
     PlaceObject('vodkabottle.ply', [2.05, 1.9, 1.0]);          % Vodka bottle moved 1 forward and right
     PlaceObject('rumbottle.ply', [2.15, 1.9, 1.0]);            % Rum bottle
     PlaceObject('greenbottle.ply', [2.25, 1.9, 1.0]);          % Green bottle
