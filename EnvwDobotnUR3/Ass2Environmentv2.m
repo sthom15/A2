@@ -1,13 +1,16 @@
 function Ass2Environmentv2
     % Clear previous simulations
     clear; clc;
-    global eStopActive;  % Define a global variable for emergency stop
+    global eStopActive;  % Define global variable
     eStopActive = false; % Initialize e-stop to inactive
 
     % Set up the environment
-    figure;
+    figureHandle = figure;
     axis([-3, 8, -3, 3, 0, 2]);
     hold on;
+
+    % Set up the key press callback for the emergency stop (when "0" is pressed)
+    set(figureHandle, 'WindowKeyPressFcn', @keyPressCallback);
 
     % Add floor texture
     surf([-3, -3; 3, 3], [-3, 3; -3, 3], [0, 0; 0, 0], ...
@@ -23,35 +26,52 @@ function Ass2Environmentv2
     q0_dobot = [pi/6, -pi/2, pi/3, 0, -pi/4, pi/2, 0, 0];
     r_dobot.model.animate(q0_dobot);
 
-    % Position objects on the table, including e-stop button
+    % Position environment objects on the table
     PlaceObject('shaker.ply', [1.1, 1.2, 1.0]);
-    PlaceObject('emergencyStopButton.ply', [1.0, 1.3, 1.0]);  % Emergency button
+    PlaceObject('emergencyStopButton.ply', [2.0, -1.2, 1.0]);  % E-stop button moved 1 step behind
+    PlaceObject('vodkabottle.ply', [2.05, 1.9, 1.0]);          % Vodka bottle moved 1 forward and right
+    PlaceObject('rumbottle.ply', [2.15, 1.9, 1.0]);            % Rum bottle
+    PlaceObject('greenbottle.ply', [2.25, 1.9, 1.0]);          % Green bottle
+    PlaceObject('RedSoloCup.ply', [1.35, 0.5, 1.0]);           % Red Solo Cup
 
-    % Add an emergency stop button UI
-    uicontrol('Style', 'pushbutton', 'String', 'Emergency Stop', ...
-              'Position', [20 20 100 40], 'Callback', @triggerEStop);
+    %% Dobot Movements
+    disp('Starting Dobot movements...');
+    targetPositions = {[1, 1, 2], [1, 0, 2], [1.35, 0.12, 1.1]}; % Define target positions
+    qCurrent = q0_dobot; % Initialize current position
 
-    % Place other objects
-    PlaceObject('vodkabottle.ply', [1.05, 0.9, 1.0]);
-    PlaceObject('rumbottle.ply', [1.15, 0.9, 1.0]);
-    PlaceObject('greenbottle.ply', [1.25, 0.9, 1.0]);
-    PlaceObject('RedSoloCup.ply', [1.0, 1.1, 1.0]);
+    for t = 1:length(targetPositions)
+        if eStopActive, disp('E-Stop Activated: Dobot Motion Stopped'); break; end  % Check e-stop
+        % Calculate the target joint angles
+        targetTransform = transl(targetPositions{t});
+        qTarget = r_dobot.model.ikcon(targetTransform, qCurrent);
+        
+        % Generate trajectory for the movement
+        steps = 50;
+        qMatrix = jtraj(qCurrent, qTarget, steps);  % Calculate the trajectory
 
-    % Position UR3 Robot
+        % Animate Dobot to the target position
+        for i = 1:steps
+            if eStopActive, disp('E-Stop Activated: Dobot Motion Stopped'); break; end  % Check e-stop
+            r_dobot.model.animate(qMatrix(i, :));
+            pause(0.05);
+        end
+
+        qCurrent = qTarget; % Update current position
+        if eStopActive, break; end  % Check e-stop after each movement
+    end
+    disp('Dobot movements complete.');
+
+    %% UR3 Movements
     r_ur3 = UR3();
-    r_ur3.model.base = transl(1.5, 0.0, 1.0);
+    r_ur3.model.base = transl(1.5, -1.0, 1.0);  % Moved -1 unit along the y-axis
     q0_ur3 = zeros(1, 6);
     r_ur3.model.animate(q0_ur3);
 
-    % Prompt for simulation start
-    disp('Press Enter to start UR3 motion');
-    pause;
+    % Define pick-up and drop positions for UR3
+    pickupPosition = transl(1.5, -0.9, 1.05);
+    dropPosition = transl(1.6, -1.1, 1.05);
 
-    % Define pick-up and drop positions
-    pickupPosition = transl(1.5, 0.1, 1.05);
-    dropPosition = transl(1.6, -0.1, 1.05);
-
-    % Calculate joint configurations
+    % Calculate joint configurations for the UR3
     qPickup = r_ur3.model.ikcon(pickupPosition, q0_ur3);
     qDrop = r_ur3.model.ikcon(dropPosition, qPickup);
 
@@ -62,7 +82,7 @@ function Ass2Environmentv2
 
     % Animate UR3 to the pickup location
     for i = 1:steps
-        if eStopActive, disp('E-Stop Activated: Motion Stopped'); break; end  % Check e-stop
+        if eStopActive, disp('E-Stop Activated: UR3 Motion Stopped'); break; end  % Check e-stop
         r_ur3.model.animate(qMatrixPickup(i, :));
         pause(0.05);
     end
@@ -75,7 +95,7 @@ function Ass2Environmentv2
 
     % Animate UR3 to the drop location
     for i = 1:steps
-        if eStopActive, disp('E-Stop Activated: Motion Stopped'); break; end  % Check e-stop
+        if eStopActive, disp('E-Stop Activated: UR3 Motion Stopped'); break; end  % Check e-stop
         r_ur3.model.animate(qMatrixDrop(i, :));
         pause(0.05);
     end
@@ -89,7 +109,7 @@ function Ass2Environmentv2
     % Return UR3 to the initial position
     qMatrixReset = jtraj(qDrop, q0_ur3, steps);
     for i = 1:steps
-        if eStopActive, disp('E-Stop Activated: Motion Stopped'); break; end  % Check e-stop
+        if eStopActive, disp('E-Stop Activated: UR3 Motion Stopped'); break; end  % Check e-stop
         r_ur3.model.animate(qMatrixReset(i, :));
         pause(0.05);
     end
@@ -97,9 +117,10 @@ function Ass2Environmentv2
     disp('Simulation complete.');
 end
 
-function triggerEStop(~, ~)
-    % Callback function for the emergency stop button
+function keyPressCallback(~, event)
     global eStopActive;
-    eStopActive = true;
-    disp('Emergency Stop Activated!');
+    if strcmp(event.Key, '0')
+        eStopActive = true;
+        disp('Emergency Stop Activated by pressing "0"!');
+    end
 end
