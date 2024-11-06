@@ -52,7 +52,11 @@ gripperR1 = Gripper(gripperOrigin1.T *trotx(-pi/2) * trotz(pi));
     PlaceObject('vodkabottle.ply', [1.35, 1.9, 1.0]);          % Vodka bottle moved 1 forward and right
     PlaceObject('rumbottle.ply', [1.5, 1.9, 1.0]);            % Rum bottle
     PlaceObject('greenbottle.ply', [1.65, 1.9, 1.0]);          % Green bottle
-    PlaceObject('RedSoloCup.ply', [1.35, 0.5, 1.0]);           % Red Solo Cup
+RedSoloCup=PlaceObject('RedSoloCup.ply', [0 0 0]);
+        RedSoloCup_vertices=get(RedSoloCup,'Vertices');
+    RedSoloCuptr=transl(1.35, 0.5, 1.0);
+    transformedVertices=[RedSoloCup_vertices,ones(size(RedSoloCup_vertices,1),1)]*RedSoloCuptr';
+    set(RedSoloCup,'Vertices',transformedVertices(:,1:3));
     PlaceObject('vodkabottle.ply', [1, -1.35, 1.0]);          
     PlaceObject('rumbottle.ply', [1, -1.55, 1.0]);
     PlaceObject('vodkabottle.ply', [-0.25, 1, 0.8]);          
@@ -128,6 +132,10 @@ g0 = deg2rad(45);
     gripperR1.model.base = gripperRTransform1;
         gripperL1.model.animate(q00); % Default pose for left gripper
     gripperR1.model.animate(q00); % Default pose for right gripper
+           tr=r_dobot.model.fkine(r_dobot.model.getpos()).T * transl(0.05,0,-0.15);
+                        transformedVertices=[RedSoloCup_vertices,ones(size(RedSoloCup_vertices,1),1)]*(double(tr))';
+                        set(RedSoloCup,'Vertices',transformedVertices(:,1:3));
+    
         pause(0.05);
                 end
                                 if i == steps
@@ -164,8 +172,9 @@ g0 = deg2rad(45);
     gripperR1.model.base = gripperRTransform1;
         gripperL1.model.animate(q00); % Default pose for left gripper
     gripperR1.model.animate(q00); % Default pose for right gripper
-            set(cupHandle, 'Matrix', end_effector_transform);  % Update object's transformation to match the end effector
-        pause(0.05);
+         tr=r_dobot.model.fkine(r_dobot.model.getpos()).T * transl(0.05,0,-0.15);
+                        transformedVertices=[RedSoloCup_vertices,ones(size(RedSoloCup_vertices,1),1)]*(double(tr))';
+                        set(RedSoloCup,'Vertices',transformedVertices(:,1:3));        pause(0.05);
                 end
                                 if i == steps
                     section1rund = true
@@ -201,7 +210,9 @@ g0 = deg2rad(45);
     gripperR1.model.base = gripperRTransform1;
         gripperL1.model.animate(q00); % Default pose for left gripper
     gripperR1.model.animate(q00); % Default pose for right gripper
-    
+         tr=r_dobot.model.fkine(r_dobot.model.getpos()).T * transl(0.05,0,-0.15);
+                        transformedVertices=[RedSoloCup_vertices,ones(size(RedSoloCup_vertices,1),1)]*(double(tr))';
+                        set(RedSoloCup,'Vertices',transformedVertices(:,1:3));
         pause(0.05);
                 end
                                 if i == steps
@@ -248,6 +259,9 @@ g0 = deg2rad(45);
     gripperR.model.base = gripperRTransform;
         gripperL.model.animate(q00); % Default pose for left gripper
     gripperR.model.animate(q00); % Default pose for right gripper
+       tr=r_ur3.model.fkine(r_ur3.model.getpos()).T * transl(0.05,0,-0.15);
+                        transformedVertices=[RedSoloCup_vertices,ones(size(RedSoloCup_vertices,1),1)]*(double(tr))';
+                        set(RedSoloCup,'Vertices',transformedVertices(:,1:3));
         pause(0.05);
                 end
                                 if i == steps
@@ -283,6 +297,9 @@ if section2run == false;
     gripperR.model.base = gripperRTransform;
         gripperL.model.animate(q00); % Default pose for left gripper
     gripperR.model.animate(q00); % Default pose for right gripper
+       tr=r_ur3.model.fkine(r_ur3.model.getpos()).T * transl(0.05,0,-0.15);
+                        transformedVertices=[RedSoloCup_vertices,ones(size(RedSoloCup_vertices,1),1)]*(double(tr))';
+                        set(RedSoloCup,'Vertices',transformedVertices(:,1:3));
     
         pause(0.05);
 end
@@ -318,6 +335,9 @@ if section3run == false;
     gripperR.model.base = gripperRTransform;
         gripperL.model.animate(q00); % Default pose for left gripper
     gripperR.model.animate(q00); % Default pose for right gripper
+       tr=r_ur3.model.fkine(r_ur3.model.getpos()).T * transl(0.05,0,-0.15);
+                        transformedVertices=[RedSoloCup_vertices,ones(size(RedSoloCup_vertices,1),1)]*(double(tr))';
+                        set(RedSoloCup,'Vertices',transformedVertices(:,1:3));
         pause(0.05);
                 end
                 if i == steps
