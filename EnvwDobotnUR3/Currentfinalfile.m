@@ -1,4 +1,4 @@
- function Ass2Environmentv2
+  function Ass2Environmentv2
     % Clear previous simulations
     close all; clear; clc;
         % Define collision plane for the table

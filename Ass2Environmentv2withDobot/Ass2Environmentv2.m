@@ -17,10 +17,10 @@ r.model.animate(q0);
     % Dobot C5 Model
     %r = Dobot CR5;
     %assignin('base', 'r', r);
-    
+
     % Creating rest of environment
-    
-     
+
+
 axis([-3,3,-3,3,0,2]);
     hold on
 
@@ -87,3 +87,4 @@ axis([-3,3,-3,3,0,2]);
         pause(0.05); % Pause for smooth visualization
     end
 end
+
