@@ -30,9 +30,16 @@ function Ass2Environmentv6
     PlaceObject('vodkabottle.ply', [1.35, 1.9, 1.0]);          % Vodka bottle
     PlaceObject('rumbottle.ply', [1.5, 1.9, 1.0]);             % Rum bottle
     PlaceObject('greenbottle.ply', [1.65, 1.9, 1.0]);          % Green bottle
-    cupHandle = PlaceObject('RedSoloCup.ply', [1.2, 1.2, 1.0]); % Position Red Solo Cup near the Dobot
-    cupVertices = get(cupHandle, 'Vertices');                  % Store original vertices of the cup
-
+RedSoloCup=PlaceObject('RedSoloCup.ply', [0 0 0]);
+        RedSoloCup_vertices=get(RedSoloCup,'Vertices');
+    RedSoloCuptr=transl(1.35, 0.5, 1.0);
+    transformedVertices=[RedSoloCup_vertices,ones(size(RedSoloCup_vertices,1),1)]*RedSoloCuptr';
+    set(RedSoloCup,'Vertices',transformedVertices(:,1:3));
+shaker=PlaceObject('shaker.ply', [0 0 0]);
+        shaker_vertices=get(shaker,'Vertices');
+    shakertr=transl(1.35, 0.5, 1.0);
+    transformedVertices=[shaker_vertices,ones(size(shaker_vertices,1),1)]*shakertr';
+    set(shaker,'Vertices',transformedVertices(:,1:3));
     % Dobot Setup
     r_dobot = dobot();
     r_dobot.model.base = transl(0.0, 2.2, 1.0);   % Updated position: 1 unit forward on the X-axis
@@ -62,6 +69,7 @@ function Ass2Environmentv6
     dobotTask(r_dobot);                   % Perform Dobot Task
     executeUR3PickPlace(r_ur3, cupHandle, cupVertices); % UR3 pick and place task
 
+
     %% Function to Perform Dobot Task
     function dobotTask(robot)
         disp('Starting Dobot task...');
@@ -79,30 +87,39 @@ function Ass2Environmentv6
         % Animate movement
         for i = 1:steps
             robot.model.animate(qMatrix1(i, :));
+
             pause(0.05);
         end
         for i = 1:steps
             robot.model.animate(qMatrix2(i, :));
+                           tr=r_dobot.model.fkine(r_dobot.model.getpos()).T * transl(0.05,0,-0.15);
+                        transformedVertices=[shaker_vertices,ones(size(shaker_vertices,1),1)]*(double(tr))';
+                        set(shaker,'Vertices',transformedVertices(:,1:3));
             pause(0.05);
         end
         disp('Dobot task complete.');
     end
+%% postion the end effector to pour
+%% qpour = 1;
+%% code to move end effector to required angle
+%%            robot.model.animate(qpour);
+%% pause (250) to pour
 
     %% Function to Execute UR3 Pick-and-Place Task
-    function executeUR3PickPlace(robot, cupHandle, cupVertices)
+    function executeUR3PickPlace(robot)
         pickupPos = transl(0.0, 2.2, 1.1);   % Adjusted above the Red Solo Cup near the Dobot
         placePos = transl(-0.3, 0, 1.0);     % Placement position on the bar table
 
         % Move to pickup and grip
-        moveUR3OnSimulatedRail(robot, rail_base_position, pickupPos, 'grip', cupHandle, cupVertices);
+        moveUR3OnSimulatedRail(robot, rail_base_position, pickupPos, 'grip');
 
         % Move to place and release
-        moveUR3OnSimulatedRail(robot, transl(-0.3, -0.5, 1.0), placePos, 'release', cupHandle, cupVertices);
+        moveUR3OnSimulatedRail(robot, transl(-0.3, -0.5, 1.0), placePos, 'release');
         disp('UR3 task complete.');
     end
 
     %% Function to Move UR3 on Simulated Linear Rail with Pick-and-Place Action
-    function moveUR3OnSimulatedRail(robot, baseTarget, targetTransform, action, cupHandle, cupVertices)
+    function moveUR3OnSimulatedRail(robot, baseTarget, targetTransform, action)
         steps = 50;
         qCurrent = robot.model.getpos();
         qTarget = robot.model.ikcon(targetTransform, qCurrent);
@@ -117,21 +134,19 @@ function Ass2Environmentv6
             qInterp = qCurrent * (1 - s) + qTarget * s;
             robot.model.animate(qInterp);
 
-            % Attach or detach cup based on action at final position
-            endEffectorTransform = robot.model.fkine(qInterp).T;
-            rotationAndTranslation = endEffectorTransform(1:3, :); % Extract 3x4 part of the transform
+  
 
             if strcmp(action, 'grip') && i == steps
                 disp('Gripping cup...');
                 % Transform cup vertices to the end-effector's location
-                transformedVertices = [cupVertices, ones(size(cupVertices, 1), 1)] * rotationAndTranslation';
-                set(cupHandle, 'Vertices', transformedVertices(:, 1:3));  % Attach cup to gripper
-            elseif strcmp(action, 'release') && i == steps
+tr=r_ur3.model.fkine(r_ur3.model.getpos()).T * transl(0.05,0,-0.15);
+                        transformedVertices=[RedSoloCup_vertices,ones(size(RedSoloCup_vertices,1),1)]*(double(tr))';
+                        set(RedSoloCup,'Vertices',transformedVertices(:,1:3));            elseif strcmp(action, 'release') && i == steps
                 disp('Releasing cup...');
                 % Drop cup at the final position
-                releaseTransform = targetTransform(1:3, :); % Extract the 3x4 part for the drop
-                transformedVertices = [cupVertices, ones(size(cupVertices, 1), 1)] * releaseTransform';
-                set(cupHandle, 'Vertices', transformedVertices(:, 1:3));  % Release cup
+       %         releaseTransform = targetTransform(1:3, :); % Extract the 3x4 part for the drop
+        %        transformedVertices = [cupVertices, ones(size(cupVertices, 1), 1)] * releaseTransform';
+        %        set(cupHandle, 'Vertices', transformedVertices(:, 1:3));  % Release cup
             end
             pause(0.05);  % Pause for smooth animation
         end
@@ -148,7 +163,7 @@ function Ass2Environmentv6
         if isStopped
             disp('Resuming operation...');
             isStopped = false;
-            executeUR3PickPlace(r_ur3, cupHandle, cupVertices);
+            executeUR3PickPlace(r_ur3);
         end
     end
 end
