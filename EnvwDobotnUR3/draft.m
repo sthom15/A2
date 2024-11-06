@@ -67,7 +67,7 @@ shaker=PlaceObject('shaker.ply', [0 0 0]);
 
     % Begin Tasks
     dobotTask(r_dobot);                   % Perform Dobot Task
-    executeUR3PickPlace(r_ur3, cupHandle, cupVertices); % UR3 pick and place task
+    executeUR3PickPlace(r_ur3); % UR3 pick and place task
 
 
     %% Function to Perform Dobot Task
